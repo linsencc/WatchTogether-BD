@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+
+    <link href="https://www.w3school.com.cn/lib/bs/bootstrap.css" rel="stylesheet">
+    <script src="https://www.w3school.com.cn/lib/bs/bootstrap.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <style>
+        .container {
+            display: flex;
+            height: calc(100vh - 5vh);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-block {
+            width: 400px;
+            padding: 12px 24px;
+            border-radius: 4px;
+            color: #8590a6;
+            box-shadow: rgba(0, 0, 0, 0.2) 0 4px 8px 0, rgba(0, 0, 0, 0.2) 0 6px 20px 0;
+        }
+
+        .login-title {
+            font-size: 16px;
+            line-height: 46px;
+            height: 49px;
+            cursor: pointer;
+            position: relative;
+            color: #121212;
+            font-weight: 600;
+            font-synthesis: style;
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+
+        .login-title .login-sign-in {
+            margin-right: 12px;
+            border-bottom: 3px #056de8 solid;
+        }
+
+
+        .login-item {
+            width: 100%;
+            height: 44px;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-item label {
+            width: 25%;
+            padding: .375rem 0;
+            margin: 0;
+        }
+
+        .login-item input {
+            border-radius: 0;
+            border-top: 0;
+            border-left: 0;
+            border-bottom: 1px solid #ccc;
+            border-right: 0;
+        }
+
+        .login-item input:focus {
+            box-shadow: none;
+        }
+
+
+        .login-item.nike-name {
+            visibility: hidden;
+            height: 0;
+        }
+
+
+        .login-button {
+            display: inline-block;
+            font-size: 14px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 3px;
+            border: 1px solid #056de8;
+            width: 100%;
+            height: 36px;
+            color: #fff;
+            background: #056de8 none;
+            margin-bottom: 12px;
+            margin-top: 24px;
+        }
+
+        @-webkit-keyframes height-unsqueeze {
+            from {
+                height: 0;
+            }
+            to {
+                height: 44px;
+            }
+        }
+
+        @-webkit-keyframes height-squeeze {
+            from {
+                height: 44px;
+            }
+            to {
+                height: 0;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+<div class="container">
+    <div class="login-block">
+        <div class="content">
+            <form>
+                <div class="login-title">
+                    <div class="login-sign-in">🛫密码登录</div>
+                    <div class="login-sign-up">🛬用户注册</div>
+                </div>
+
+                <div class="login-item nike-name">
+                    <label for="nickname" class="form-label">🍺昵称:</label>
+                    <input type="text" class="form-control" id="nickname" placeholder="请输入用户昵称" name="nickname">
+                </div>
+
+                <div class="login-item">
+                    <label for="email" class="form-label">🥝账号:</label>
+                    <input type="email" class="form-control" id="email" placeholder="请输入电子邮件地址" name="email">
+                </div>
+
+                <div class="login-item">
+                    <label for="password" class="form-label">🍰密码:</label>
+                    <input type="password" class="form-control" id="password" placeholder="请输入用户密码" name="pswd">
+                </div>
+
+                <div class="login-button" action="sign-in">登录</div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="login-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body" style="display: flex">
+                    <div class="modal-title"></div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            style="display: flex; margin-left: auto"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+
+<script>
+    $(".login-sign-in").click(function () {
+        $(".login-sign-in").css("border-bottom", "3px #056de8 solid");
+        $(".login-sign-up").css("border-bottom", "hidden");
+        $(".login-item.nike-name").css({"height": "0", "visibility": "hidden"});
+        $(".login-button").text("登录");
+        $(".login-button").attr("action", "sign-in");
+    });
+
+    $(".login-sign-up").click(function () {
+        $(".login-sign-up").css("border-bottom", "3px #056de8 solid");
+        $(".login-sign-in").css("border-bottom", "hidden");
+        $(".login-item.nike-name").css({"height": "44px", "visibility": "visible"});
+        $(".login-button").text("注册");
+        $(".login-button").attr("action", "sign-up");
+    });
+
+    $(".login-button").click(function () {
+        let action = $(".login-button").attr("action")
+        if (action == "sign-in") signIn();
+        if (action == "sign-up") signUp();
+    });
+
+    function setPageCloseModal(text, time) {
+        let delay = time;
+        let interval = setInterval(function () {
+            let modalText = String(text) + ", " + Number(delay / 1000) + "s 关闭提示";
+            $("#login-modal .modal-title").text(modalText);
+            if (delay == time) {
+                $("#login-modal").modal("show");
+            }
+            if (delay <= 0) {
+                clearInterval(interval);
+                $("#login-modal").modal("hide");
+                {#window.close();#}
+            }
+            delay -= 1000;
+        }, 1000);
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1);
+            if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
+        }
+        return "";
+    }
+
+    function signIn() {
+        $("#login-modal .modal-title").text("正在登录...");
+        $("#login-modal").modal("show");
+
+        // 构建登录数据
+        let postData = {
+            "account": $("#email").val(),
+            "password": $("#password").val(),
+        }
+
+        $.ajax({
+            url: "http://127.0.0.1:5000/sign-in",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify(postData),
+            success: function (res) {
+                let msg = res["msg"];
+                setPageCloseModal(msg, 5000);
+                let cookietoSet = getCookie('Set-Cookie');
+                console.log('header:', cookietoSet);
+                console.log(document.cookie);
+            },
+            error: function (res) {
+                let msg = res.responseJSON["msg"];
+                setPageCloseModal(msg, 5000);
+            }
+        });
+    };
+
+
+    function signUp() {
+        $("#login-modal .modal-title").text("正在注册...");
+        $("#login-modal").modal("show");
+
+        // 构建注册数据
+        let postData = {
+            "nickname": $("#nickname").val(),
+            "account": $("#email").val(),
+            "password": $("#password").val(),
+        }
+
+        $.ajax({
+            url: "http://127.0.0.1:5000/sign-up",
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify(postData),
+            success: function (res) {
+                let msg = res["msg"];
+                setPageCloseModal(msg, 5000);
+            },
+            error: function (res) {
+                let msg = res.responseJSON["msg"];
+                setPageCloseModal(msg, 5000);
+            }
+        });
+    }
+</script>
+
+</html>
