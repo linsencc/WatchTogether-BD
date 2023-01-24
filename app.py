@@ -54,9 +54,11 @@ login_manager.login_view = 'sign_in'
 # 加载views中逻辑函数，models中数据模型，不可删除
 from views_auth import *
 from views_logit import *
-from views_test import *
+
 
 
 if __name__ == '__main__':
-    http_server = WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
+#    http_server = WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler, keyfile='san_domain_com.key', certfile='san_domain_com.crt')
+#    http_server.serve_forever()
+
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True,  keyfile='cert/private.key', certfile='cert/certificate.crt')
