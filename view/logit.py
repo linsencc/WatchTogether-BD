@@ -16,27 +16,43 @@ manage = Manage()
 @login_required
 def _create_room():
     post_data = request.get_json()
-    room_number = str(post_data.get('roomNumber', None))
+    tab_id = str(post_data.get('tabId', ''))
+    room_number = str(post_data.get('roomNumber', ''))
+    room_url = str(post_data.get('roomUrl', ''))
 
+    # 判断room url
+    if not room_url:
+        msg = 'room url (%s) invalid' % room_url
+        app.logger.info(msg)
+        return make_response({'code': 1, 'msg': msg, 'data': {}})
+
+    # 判断tab id是否为有效值
+    if not tab_id.isnumeric():
+        msg = 'tab id (%s) invalid' % tab_id
+        app.logger.info(msg)
+        return make_response({'code': 1, 'msg': msg, 'data': {}})
+
+    # 判断房间号是否为空值
     if room_number == '' or room_number == 'None':
         msg = 'room number(%s) cannot be empty' % room_number
         app.logger.info(msg)
         return make_response({'code': 1, 'msg': msg, 'data': {}})
 
-    # 判断是否已经进入房间
+    # 判断用户是否已经进入房间
     if current_user.email in manage.user_to_room:
         cur_room_number = manage.user_to_room[current_user.email].room_number
         msg = '%s already in room(%s)' % (current_user.nickname, cur_room_number)
         app.logger.info(msg)
         return make_response({'code': 1, 'msg': msg, 'data': {}})
 
+    # 判断此次期望创建的房间是否已存在
     if room_number in manage.rooms:
         msg = 'room(%s) already exists' % room_number
         app.logger.info(msg)
         return make_response({'code': 1, 'msg': msg, 'data': {}})
 
-    room = manage.create_room(room_number)
-    user = User(current_user.email, current_user.nickname)
+    room = manage.create_room(room_number, room_url)
+    user = User(current_user.email, current_user.nickname, tab_id)
     room.add_user(user)
     manage.create_user_to_room(user.email, room)
 
@@ -51,6 +67,13 @@ def _create_room():
 def _join_room():
     post_data = request.get_json()
     room_number = str(post_data.get('roomNumber', None))
+    tab_id = str(post_data.get('tabId', ''))
+
+    # 判断tab id是否为有效值
+    if not tab_id.isnumeric():
+        msg = 'tab id (%s) invalid' % tab_id
+        app.logger.info(msg)
+        return make_response({'code': 1, 'msg': msg, 'data': {}})
 
     # 判断是否已经进入房间
     if current_user.email in manage.user_to_room:
@@ -66,7 +89,7 @@ def _join_room():
         return make_response({'code': 1, 'msg': msg, 'data': {}})
 
     room = manage.get_room(room_number)
-    user = User(current_user.email, current_user.nickname)
+    user = User(current_user.email, current_user.nickname, tab_id)
     room.add_user(user)
     manage.create_user_to_room(user.email, room)
 

@@ -1,9 +1,5 @@
 import functools
-import json
-import time
-
-from app import socketio
-from flask_socketio import emit, disconnect
+from flask_socketio import emit
 from app import socketio_namespace, app
 
 
@@ -19,18 +15,18 @@ class Singleton(object):
 
 
 class User:
-    def __init__(self, email: str, nickname: str):
+    def __init__(self, email: str, nickname: str, tab_id: str):
         self.email = email
         self.nickname = nickname
-
         self._socketio = False
         self._url = None
+        self._tab_id = tab_id
         self._video_state = 'init'  # onload oncanplay onplaying onpause
         self._video_progress = 0
 
     @staticmethod
     def keys():
-        return 'email', 'nickname', 'url', 'socketio', 'video_state', 'video_progress'
+        return 'email', 'nickname', 'url', 'tab_id', 'socketio', 'video_state', 'video_progress'
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -42,6 +38,14 @@ class User:
     @url.setter
     def url(self, url: str):
         self._url = url
+
+    @property
+    def tab_id(self):
+        return self._tab_id
+
+    @tab_id.setter
+    def tab_id(self, tab_id: str):
+        self._tab_id = tab_id
 
     @property
     def socketio(self):
@@ -69,10 +73,11 @@ class User:
 
 
 class Room:
-    def __init__(self, room_number: str):
+    def __init__(self, room_number: str, room_url: str):
         self.room_number: str = room_number
+        self.room_url: str = room_url
         self.users: dict[str, User] = {}  # email -> user
-        self.sync_state: [{str, int}] = []  # 0 -> 1
+        self.sync_state: [{str, int}] = []  # email -> [0, 1]
 
     def init_new_sync_state(self):
         app.logger.info('init_new_sync_state')
@@ -102,7 +107,7 @@ class Room:
     def get_room_info(self):
         # 获取对象的字典表示形式
         users_data = {k: dict(v) for k, v in self.users.items()}
-        room_data = {'room_number': self.room_number, 'users': users_data}
+        room_data = {'room_number': self.room_number, 'room_url': self.room_url, 'users': users_data}
         return room_data
 
     @staticmethod
@@ -174,9 +179,9 @@ class Manage:
             return room
         return None
 
-    def create_room(self, room_number):
+    def create_room(self, room_number, room_url):
         if room_number not in self.rooms:
-            room = Room(room_number)
+            room = Room(room_number, room_url)
             self.rooms[room_number] = room
             return room
         return None
