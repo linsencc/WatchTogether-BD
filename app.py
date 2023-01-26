@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-import logging
-
 
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
-from gevent.pywsgi import WSGIServer
-from geventwebsocket.handler import WebSocketHandler
-
 
 # logging.basicConfig(level='INFO')
+
 
 # Windows系统，使用三个斜线
 WIN = sys.platform.startswith('win')
 prefix = 'sqlite:///' if WIN else 'sqlite:////'
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev')
@@ -52,13 +47,12 @@ login_manager.login_view = 'sign_in'
 
 
 # 加载views中逻辑函数，models中数据模型，不可删除
-from views_auth import *
-from views_logit import *
-
+from view.auth import *
+from view.logit import *
 
 
 if __name__ == '__main__':
-#    http_server = WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler, keyfile='san_domain_com.key', certfile='san_domain_com.crt')
-#    http_server.serve_forever()
+    # http_server = WSGIServer(('0.0.0.0', 5000), app, handler_class=WebSocketHandler, keyfile='san_domain_com.key',
+    # certfile='san_domain_com.crt') http_server.serve_forever()
 
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True,  keyfile='cert/private.key', certfile='cert/certificate.crt')
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, keyfile='cert/private.key', certfile='cert/certificate.crt')
