@@ -117,6 +117,9 @@ def _leave_room():
         app.logger.info(msg)
         return make_response({'code': 1, 'msg': msg, 'data': {}})
 
+    room_info = room.get_room_info()
+    user_info = current_user.to_dict(rules=('-password_hash', '-id'))
+
     room.delete_user(current_user.email)
     manage.delete_user_to_room(current_user.email)
 
@@ -126,7 +129,7 @@ def _leave_room():
 
     msg = '%s leave room(%s)' % (current_user.nickname, room_number)
     app.logger.info(msg)
-    return make_response({'code': 0, 'msg': msg, 'data': {}})
+    return make_response({'code': 0, 'msg': msg, 'data': {'user': user_info, 'room': room_info}})
 
 
 def authenticated_only(f):
