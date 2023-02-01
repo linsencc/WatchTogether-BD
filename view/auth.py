@@ -115,6 +115,9 @@ def profile():
     room = manage.get_room_by_email(current_user.email)
     user_info = current_user.to_dict(rules=('-password_hash', '-id'))
 
+    if room:
+        user_info = dict(room.users[current_user.email])
+
     # 用户未加入房间
     if not room:
         return make_response({'code': 0, 'msg': 'success', 'data': {'user': user_info}})

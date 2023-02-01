@@ -98,11 +98,14 @@ class Room:
                 break
         return res
 
-    def emit_pause_and_jump_order(self, time: int):
-        emit('video-action', {'action': 'pause-and-jump', 'time': time, 'sync-event-id': '0000'}, to=self.room_number, namespace=socketio_namespace)
+    def emit_pause_and_jump_order(self, time: int, sync_type: str):
+        emit('videoAction', {'action': 'pause', 'time': time, 'type': sync_type}, to=self.room_number, namespace=socketio_namespace)
 
     def emit_play_order(self):
-        emit('video-action', {'action': 'play'}, to=self.room_number, namespace=socketio_namespace)
+        emit('videoAction', {'action': 'play'}, to=self.room_number, namespace=socketio_namespace)
+
+    def emit_update_url_order(self, url: str):
+        emit('videoAction', {'action': 'updateUrl', 'url': url}, include_self=False, to=self.room_number, namespace=socketio_namespace)
 
     def get_room_info(self):
         # 获取对象的字典表示形式

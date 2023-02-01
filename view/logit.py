@@ -94,9 +94,11 @@ def _join_room():
     manage.create_user_to_room(user.email, room)
 
     room_info = room.get_room_info()
+    user_info = dict(room.users[current_user.email])
+
     msg = '%s join room(%s)' % (user.nickname, room_number)
     app.logger.info(msg)
-    return make_response({'code': 0, 'msg': msg, 'data': {'room': room_info}})
+    return make_response({'code': 0, 'msg': msg, 'data': {'room': room_info, 'user': user_info}})
 
 
 @app.route('/leave-room', methods=['POST'])
@@ -118,7 +120,7 @@ def _leave_room():
         return make_response({'code': 1, 'msg': msg, 'data': {}})
 
     room_info = room.get_room_info()
-    user_info = current_user.to_dict(rules=('-password_hash', '-id'))
+    user_info = dict(room.users[current_user.email])
 
     room.delete_user(current_user.email)
     manage.delete_user_to_room(current_user.email)
@@ -170,7 +172,7 @@ def disconnect():
     app.logger.info('%s socket disconnected...' % nickname)
 
 
-@socketio.on('update-user-info', namespace=socketio_namespace)
+@socketio.on('updateUserInfo', namespace=socketio_namespace)
 @authenticated_only
 def update_user_info(data):
     app.logger.info('socket update_user_info: %s' % json.dumps(data))
@@ -188,10 +190,10 @@ def update_user_info(data):
             room.set_user_video_state(email, current_state)
         if current_socketio:
             room.set_user_socketio(email, current_socketio)
-        app.logger.info('%s update-user-info update room success!' % email)
+        app.logger.info('%s update user info update room success!' % email)
 
 
-@socketio.on('sync-event', namespace=socketio_namespace)
+@socketio.on('sync', namespace=socketio_namespace)
 @authenticated_only
 def sync_event(data):
     email = current_user.email
@@ -200,14 +202,19 @@ def sync_event(data):
 
     app.logger.info('%s sync event: %s' % (email, json.dumps(data)))
 
-    if action == 'init new sync state':
+    if action == 'init':
         time = data.get('time')
         room.init_new_sync_state()
-        room.emit_pause_and_jump_order(time)
+        room.emit_pause_and_jump_order(time, 'sync')
 
-    elif action == 'update sync state':
+    elif action == 'updateState':
         state = data.get('state')
         room.update_sync_state(email, state)
+
+    elif action == 'updateUrl':
+        url = str(data.get('url'))
+        room.room_url = url
+        room.emit_update_url_order(url)
 
 
 
