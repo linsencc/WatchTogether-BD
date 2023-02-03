@@ -51,7 +51,7 @@ def sign_up():
         return make_response(rsp, 200)
 
     if request.method == 'GET':
-        return render_template("template/auth/login.html")
+        return render_template("login.html")
 
     # 兜底回复
     rsp = {'code': 1, 'msg': '注册失败', 'data': {}}
@@ -85,7 +85,7 @@ def sign_in():
         return make_response(rsp, 400)
 
     if request.method == 'GET':
-        return render_template("auth/login.html")
+        return render_template("login.html")
 
         # 兜底回复
     rsp = {'code': 1, 'msg': '登录失败', 'data': {}}
@@ -124,3 +124,8 @@ def profile():
 
     room_info = room.get_room_info()
     return make_response({'code': 0, 'msg': 'success', 'data': {'user': user_info, 'room': room_info}})
+
+
+@app.route('/policy', methods=['GET'])
+def policy():
+    return render_template('policy.html')

@@ -59,7 +59,8 @@ def _create_room():
     msg = 'room(%s) create success' % room_number
     app.logger.info(msg)
     room_info = room.get_room_info()
-    return make_response({'code': 0, 'msg': msg, 'data': {'room': room_info}})
+    user_info = dict(user)
+    return make_response({'code': 0, 'msg': msg, 'data': {'room': room_info, 'user': user_info}})
 
 
 @app.route('/join-room', methods=['POST'])
@@ -94,7 +95,7 @@ def _join_room():
     manage.create_user_to_room(user.email, room)
 
     room_info = room.get_room_info()
-    user_info = dict(room.users[current_user.email])
+    user_info = dict(user)
 
     msg = '%s join room(%s)' % (user.nickname, room_number)
     app.logger.info(msg)
