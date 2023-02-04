@@ -76,6 +76,7 @@ class Room:
     def __init__(self, room_number: str, room_url: str):
         self.room_number: str = room_number
         self.room_url: str = room_url
+        self.video_identify: str = ''
         self.users: dict[str, User] = {}  # email -> user
         self.sync_state: [{str, int}] = []  # email -> [0, 1]
 
@@ -99,18 +100,25 @@ class Room:
         return res
 
     def emit_pause_and_jump_order(self, time: int, sync_type: str):
-        emit('videoAction', {'action': 'pause', 'time': time, 'type': sync_type}, to=self.room_number, namespace=socketio_namespace)
+        emit('videoAction', {'action': 'pause', 'time': time, 'type': sync_type}, to=self.room_number,
+             namespace=socketio_namespace)
 
     def emit_play_order(self):
         emit('videoAction', {'action': 'play'}, to=self.room_number, namespace=socketio_namespace)
 
     def emit_update_url_order(self, url: str):
-        emit('videoAction', {'action': 'updateUrl', 'url': url}, include_self=False, to=self.room_number, namespace=socketio_namespace)
+        emit('videoAction', {'action': 'updateUrl', 'url': url}, include_self=False, to=self.room_number,
+             namespace=socketio_namespace)
 
     def get_room_info(self):
         # 获取对象的字典表示形式
         users_data = {k: dict(v) for k, v in self.users.items()}
-        room_data = {'room_number': self.room_number, 'room_url': self.room_url, 'users': users_data}
+        room_data = {
+            'room_number': self.room_number,
+            'room_url': self.room_url,
+            'video_identify': self.video_identify,
+            'users': users_data
+        }
         return room_data
 
     @staticmethod

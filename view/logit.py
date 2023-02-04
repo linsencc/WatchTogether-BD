@@ -173,18 +173,22 @@ def disconnect():
     app.logger.info('%s socket disconnected...' % nickname)
 
 
-@socketio.on('updateUserInfo', namespace=socketio_namespace)
+@socketio.on('updateInfo', namespace=socketio_namespace)
 @authenticated_only
 def update_user_info(data):
     app.logger.info('socket update_user_info: %s' % json.dumps(data))
 
     email = current_user.email
     room = manage.get_room_by_email(email)
+
+    video_identify = data.get('videoIdentify')
     current_state = data.get('currentState')
     current_progress = data.get('currentProgress')
     current_socketio = data.get('currentSocketio')
 
     if room:
+        if video_identify:
+            room.video_identify = str(video_identify)
         if current_progress:
             room.set_user_video_progress(email, current_progress)
         if current_state:
